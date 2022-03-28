@@ -1,2 +1,3 @@
-# Py4CG_talk_remote_data_storage
-code for my talk on storing data remotely
+# Py4CG - talk on remote data storage
+
+The following contains code chucks related to the talk "Improve your life by moving data off your computer" on April 1st.
