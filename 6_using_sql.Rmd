@@ -1,0 +1,87 @@
+---
+title: "Using Microsoft SQL Server"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
+
+```
+
+## R Markdown
+
+Databases are obviously the standard for remote data storage, though they're a whole different level of security issues, IT, networking, cost, and management. Rstudio has [nice documentation](https://db.rstudio.com/) on best practices for interacting with databases but here are a few code chunks to get started.
+
+
+## Examples
+
+## Connecting to a SQL database
+
+This can sometimes be the most frustrating part of the whole process. The driver might need to be installed on your machine or server. The R function `odbcListDrivers()` will list any drivers available on your machine. The driver listed in the code chunk below is free, works with Microsoft SQL server, and I personally have used it on Mac and linux. It's available at [Microsoft](https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-ver15), but appropriate driver depends on the type and version of sql server and your OS.
+
+The server info is best saved as an environmental variable but it can come in the form of an IP address or a url-like string. You'll need a user ID and password as well.
+
+```{r}
+# libraries
+library(tidyverse)
+library(odbc)
+library(DBI)
+
+
+conn <- dbConnect( odbc::odbc(),
+                        driver = "ODBC Driver 17 for SQL Server",
+                        Server = Sys.getenv("lme_ip"),
+                        Database = "lme",
+                        Uid = Sys.getenv("lme_id"),
+                        Pwd = Sys.getenv("lme_pw") )
+```
+
+
+### Reading Data from a SQL database
+
+```{r eval=FALSE}
+
+
+### writing a query using standard sql, 
+### this results in a dataframe with three columns filtered on revenue code
+
+  the_df <- dbGetQuery(conn,
+                          "
+                          SELECT id, effective_date, status, revenue_code_id
+                          FROM quotes
+                          WHERE revenue_code_id = 'DYLTL'
+                          ")
+
+
+### writing a query using dplyr syntax, the result is the same
+### this is less flexible than writing SQL but more familiar for R users
+
+  the_df <- tbl(conn, 'quotes') %>% 
+    filter(revenue_code_id == 'DYLTL') %>% 
+    collect()
+
+
+
+```
+
+
+
+Writing and updating tables
+
+```{r eval=FALSE}
+### write a dataframe to a SQL table, this will replace existing table
+dbWriteTable(conn, "mtcars_db", mtcars, overwrite = TRUE)
+
+
+### append a dataframe on to a SQL table
+dbWriteTable(conn, "mtcars_db", 
+             mtcars, append = TRUE, overwrite =FALSE)
+
+
+### updating a table. there are a few ways but here's one that works
+dbExecute(conn, 'UPDATE test_table_update 
+                    SET somefield = "new value"  
+                    WHERE name = "fred"')
+
+
+```

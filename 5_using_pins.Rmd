@@ -1,0 +1,47 @@
+---
+title: "Using Pins with Azure storage"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
+```
+
+
+
+
+## Intro
+
+[Pins](https://pins.rstudio.com/) is a library that allows data objects to be saved remotely where others can access. Users create a "board" in Azure blog storage (dropbox, AWS and others can also be used) where data objects can be retrieved or updated. While this isn't currently an option on the City's Microsoft ecosystem, it may be a possibility once Azure is used more commonly. Setup can still be done using azure or other cloud services no affiliated with the City.
+
+
+## Pro and Cons
+
+### Pros
+
++ Data is saved in the cloud where others can access it
++ reading and writing is fast
++ Can save, aka "pin", complex objects like nested lists, dataframes with list-columns, entire ML models, etc.
++ There's room for descriptions of data objects saved on board.
+
+
+### Cons
+
++ can't edit individual records, only rewrite whole objects
++ no audit log or rollback capabilities
++ Feel like a database, but is much slower
++ if it's setup on a City azure data blob, you need to be on the network
+
+
+
+## Examples
+
+```{r}
+library(tidyverse)
+library(pins)
+
+```
+
+The examples [at Rstudio](https://pins.rstudio.com/) are great.
+
+<br>

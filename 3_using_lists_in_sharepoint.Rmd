@@ -1,0 +1,176 @@
+---
+title: "Using Lists in sharepoint"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
+```
+
+## Intro
+
+When SharePoint lists are used with the Microsoft Graph API (tips on R integration [here](https://github.com/city-of-baltimore/graph-api-example/tree/main/R/microsoft365r)), they begin to feel like a hybrid between SQL and excel. There's a nice UI in SharePoint that looks remotely like excel, but through the API, one can also write queries that select and filter lists. Unlike excel, individual records (called "items" in sharepointland) can be updated. Before experimenting with the API, it requires registration with BCIT. An overview of the registration and examples using R can be found [in this repo](https://github.com/city-of-baltimore/graph-api-example/tree/main/R/microsoft365r]).
+
+The following examples uses a a graph API app setup using the `client_credentials flow`, which I would generally recommend. 
+
+A couple hints for dealing with lists:
++ check the times as you read and write between a list; there's sometimes unexpected timezone conversions
++ Sometimes if you change a column's name in the UI, the API will still use the original name. Deleting and recreating a column with a new name is better than renaming a column.
++ the data type in R needs to be compatible to the fields in the list
++ Datetime is written to a list as `%Y-%m-%dT%H:%M:%SZ`. See example below
+
+
+
+## Pros and Cons
+
+
+### Pros
+
++ Data is securely saved in sharepoint where others can access it, even non-data folks
++ You can see the history of edits and changes made to each item in a list
++ You can rollback to previous versions.
++ You can 'select' fields, and filter a list using db-like queries, rather than reading the whole list
++ You can update fields for individual records 
++ The graph api credentials can be used widely thus data can be read by shiny apps and more.
++ Don't need to be on city network
+
+### Cons
+
++ Lists are harder to edit in the sharePoint UI
++ Process to get registered with Graph API
++ Feel like a database, but is much slower
++ Have to manage secrets
++ Additional libraries and functions are required to learn
+
+
+
+
+### Connect to Sharepoint
+
+The following code would work better in a function but is presented line-by-line for the example. 
+
+```{r}
+
+### libraries
+
+library(tidyverse)
+library(Microsoft365R)
+library(AzureGraph)
+library(lubridate)
+
+### establish a connection that will be used for reading and writing
+
+conn <- AzureGraph::create_graph_login(tenant = "bmore", 
+                                       app = Sys.getenv("graph_id"), 
+                                       password = Sys.getenv("graph_secret"))
+```
+
+
+
+
+
+### Reading a sharepoint list
+
+The following code would work better in a function but is presented line-by-line for the example. 
+
+```{r}
+
+### connect to a particular sharepoint list
+list_connect <-  conn$get_sharepoint_site(site_url = "https://bmore.sharepoint.com/sites/MORP")$get_list("mt_cars_list")
+
+
+### Read whole list **notice the additional columns of sweet, sweet metadata
+whole_list_df <- list_connect$list_items()
+
+## print some data
+head(whole_list_df)
+
+## Read limited records and fields
+## this returns onnly 6 columns and records that have field_1 == 6 and field_3 == 110
+limited_list_df <- 
+  list_connect$list_items(filter = "fields/field_1 eq 6 and fields/field_3 eq 110",
+                              select="field_1, field_2, field_3 , measurement, data_date, data_duration_type")
+
+head(limited_list_df)
+
+
+
+```
+
+
+### Writing to a sharepoint list
+
+
+```{r}
+
+# Create a df to push to list
+data_frame_to_push <- tribble(
+  ~Title, ~field_1, ~field_3,
+  1,2,3,
+  4,5,6,
+  7,8,9
+)
+
+
+# Create another df to push to list
+data_frame_to_push_2 <- tribble(
+  ~Title, ~field_1, ~field_3,
+10,11,12,
+13,14,15,
+16,17,18
+)
+
+
+
+
+### add records in bulk to SP list   
+### ***column titles need to match exactly or it will error
+### not all columns need to be included, missing columns will just be reported as null in the SP list
+list_connect$bulk_import(data_frame_to_push)
+
+
+### add one records at a time to SP list
+### this will loop through each row, adding one at a time
+### includes example of writing timestamp, time/dates need this format
+
+
+for(i in 1:nrow(data_frame_to_push_2) ){
+  list_connect$create_item(
+    Title = as.character(data_frame_to_push_2$Title[i]),
+    field_1 = data_frame_to_push_2$field_1[i],
+    field_3 = data_frame_to_push_2$field_3[i],
+    timestamp = format(with_tz(Sys.time(), tzone = "UTC"), "%Y-%m-%dT%H:%M:%SZ")
+  )
+}
+
+
+```
+
+
+### Updating a sharepoint list
+
+Updates are made by referencing the SP list item's ID. The ID is included in the metadata when the data is read through the API.
+
+```{r}
+
+## read list. After it's read, field_1 is filtered
+
+whole_list_df_with_ids <- list_connect$list_items() %>% 
+  select(id, field_1, field_2) %>% 
+  filter(field_1 == 6)
+
+### print some data
+head(whole_list_df_with_ids)
+
+
+### Adds 100 to field_2 for all records with field_1 == 6 (filtered above)
+### using the sp list item ID as the key
+
+for(i in 1:nrow(whole_list_df_with_ids) ){
+
+  list_connect$update_item(id = whole_list_df_with_ids$id[i],
+                            field_2 = whole_list_df_with_ids$field_2[i] + 100)
+}
+
+
+```

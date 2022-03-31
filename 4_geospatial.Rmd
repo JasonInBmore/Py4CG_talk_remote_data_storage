@@ -1,0 +1,101 @@
+---
+title: "Using remote data on Open Baltimore"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
+```
+
+## Intro
+
+So much of our city data can be mapped and analyzed geospatially. [Open Baltimore](https://data.baltimorecity.gov/) has a number of geospatial layers than can be used for understanding patterns. These layers can be read directly from Open Baltimore rather than downloading and managing files locally.
+
+The city also as a really fast, accurate geolocator which is also demo'ed below.
+
+
+## Pros and Cons
+
+### Pros
+
++ don't have to manage large geojson's in packages or local directories
++ Remote data put still fast
+
+
+### Cons
+
++ The data has to be on Open Baltimore
+
+
+
+## Examples
+
+
+```{r}
+
+#libraries
+library(tidyverse)
+library(sf)
+library(tmap)
+
+
+
+### Bmore neighborhood boundaries are here: https://data.baltimorecity.gov/datasets/baltimore::neighborhoods
+###
+### and you'll see that the ID for beighborhoods is f63445d9528349febb81f0b89cd8be5b_0
+
+shape_id <- "f63445d9528349febb81f0b89cd8be5b_0" # ID for neighborhoods
+
+file_url <- paste0("https://opendata.arcgis.com/datasets/", 
+                   shape_id, ".geojson")
+
+
+### read file straight from Open Baltimore
+hood_shapes <- sf::st_read(file_url)
+
+
+### map the shapes
+tm_shape(hood_shapes) +
+  tm_borders(alpha = 0.5, col = "blue") 
+
+```
+
+
+
+
+### City's geolocator
+
+Use the City's API endpoint to get GPS points of City Hall and map it. FYI, the API only works with Baltimore addresses and it must be the street address and street only, no city, state, or zip.
+
+```{r}
+
+addr <- "200 Holliday Street"
+http_ready_address <- gsub(" ", "+", addr)
+
+
+ ret <- httr::GET(paste0("https://geodata.baltimorecity.gov/egis/rest/services/Locator/EGISCompositeLocator/GeocodeServer/findAddressCandidates?SingleKey=&Address=&Street=&StreetAdd=&SingleLine=", 
+                         http_ready_address, "&category=&outFields=&maxLocations=&outSR=&searchExtent=&location=&distance=&magicKey=&f=pjson"))
+ 
+ 
+ 
+ 
+ resultant_GPS <- 
+   httr::content(ret, "text") %>% 
+   jsonlite::fromJSON() %>% 
+   .[["candidates"]] %>% 
+   dplyr::filter(score > 92) %>% ### filter by high-match scores
+   head(1) %>% ### get the top match
+   jsonlite::flatten() %>% 
+     sf::st_as_sf(., 
+           coords = c("location.x", "location.y"), 
+           crs = 3857) %>% 
+  sf::st_transform(., 4326)
+ 
+tm_shape(hood_shapes) +
+  tm_borders(alpha = 0.5, col = "blue") +
+  tm_shape(resultant_GPS) +
+  tm_bubbles(col="red", size = .3) 
+
+```

@@ -1,0 +1,85 @@
+---
+title: "Using a Shared Drive"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
+
+```
+
+## Intro
+
+In the Mayor's Office office, we call it the "shared drive" but I think it's more commonly called a "Network Drive". These are folders that can be setup and shared within an office or agency. They aren't on an individually computer (they're on a server) but they look like a native folder after they're [mapped](https://support.microsoft.com/en-us/windows/map-a-network-drive-in-windows-29ce55d1-34e3-a7e2-4801-131475f9557d).
+
+These are a few examples using a Windows computer that's on the City's network. The examples read and write straight to the network drive; no files are saved locally. The examples use excel files but this process will work with any file.
+
+
+## Pros and Cons
+
+### Pros
+
++ Data is securely saved on a server where others can access
++ Reading and writing feels familiar
++ other can access it, including non-data people
+
+### Cons
+
++ Need to be on the city network
++ Might be limited to Windows machines?
++ No Audit trail or backups
+
+
+
+## Examples
+
+### Reading files
+
+```{r}
+### libraries
+library(tidyverse)
+
+
+
+### Read a file straight from the network drive
+
+## path to directory on our agency's shared drive
+projects_dir <- "\\\\balt-smb-nas\\MORP\\Funding_Announcement\\"
+
+## list files in this directory of the network drive
+list.files(projects_dir)
+
+#add the file to the end of path
+file_to_read <- paste0(projects_dir, "Funding_Announcement.xlsx")
+
+## this would print the whole path, including file
+print(file_to_read)
+
+### since it's an excel file, using this function 
+### to read it from the network drive
+
+readxl::read_xlsx(file_to_read) %>% 
+select(1:4)
+
+```
+
+
+### Writing
+
+```{r}
+
+### This will write the mtcars dataframe straight to a file in the network drive
+
+## destintation on drive where file will go, including filename
+file_destination <- paste0(projects_dir, "mtcars.xlsx")
+
+# show the whole path including file name
+file_destination
+
+# write it directly on networkdrive
+writexl::write_xlsx(mtcars, file_destination)
+
+```
+
+
+ 

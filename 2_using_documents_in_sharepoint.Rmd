@@ -1,0 +1,117 @@
+---
+title: "Using documents in sharepoint"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
+
+```
+
+## Intro
+
+Reading and writing files to SharePoint offer a few advantages over local files and even network drives. Using SharePoint documents for data storage also come with more complicated functions, workflow and setup. First, interacting with SharePoint requires the Graph API. Setting up the graph api requires registration with BCIT. An overview of the registration and examples using R can be found [in this repo](https://github.com/city-of-baltimore/graph-api-example/tree/main/R/microsoft365r).
+
+The following examples uses a a graph API app setup using the `client_credentials flow`, which I would generally recommend. 
+
+
+## Pros and Cons
+
+### Pros
+
++ Data is securely saved in sharepoint where others can access, including non-data people
++ You can see who edited files in sharepoint
++ You can rollback to a previous version of a file if something happens
++ The graph api credentials can be used widely thus data can be read by shiny apps and more.
++ Don't need to be on city network
+
+### Cons
+
++ There's a process to get registered with Graph API
++ You have to manage secrets
++ Additional libraries and functions are required to learn
+
+
+## Examples
+
+### Connect to Sharepoint
+
+The following code would work better in a few functions, but is presented line-by-line for the example. The example uses excel files for data. Excel opens nicely in the sharePoint UI but this process works with any file type including csv, txt, rds, feather, and other files that might be better for data storage.
+
+```{r}
+
+library(tidyverse)
+library(Microsoft365R)
+library(AzureGraph)
+
+
+### establish a connection that will be used for reading and writing
+### credentials are stored as environmental variables so no exposed in the code
+
+conn <- AzureGraph::create_graph_login(tenant = "bmore", 
+                                       app = Sys.getenv("graph_id"), 
+                                       password = Sys.getenv("graph_secret"))
+```
+
+
+
+
+
+### Reading files saved in SharePoint documents
+
+The following code would work better in a function but is presented line-by-line for the example. In the example, the file is temporarily downloaded from sharepoint, then read into memory before being deleted. It uses the connection established above.
+
+```{r}
+### File that will be read
+file_name <- "prebudget_project_commitments.xlsx"
+
+## whole path to file in SharePoint
+whole_file_path <- paste0("Data resources/dashboard_extra_data/", 
+                     file_name)
+
+## method to get to sharepoint document functions
+sp_drive <- conn$get_sharepoint_site(site_url = "https://bmore.sharepoint.com/sites/MORP")$get_drive()
+  
+  
+## download the file temporarily 
+sp_drive$get_item(whole_file_path)$download()
+
+### read the downloaded file into memory
+df <- readxl::read_xlsx(file_name)
+
+## delete file
+unlink(file_name)
+
+
+### show some data
+head(df)
+
+
+```
+
+
+### Writing a file to Sharepoint
+
+There's a similar process for saving data to sharepoint documents
+```{r}
+
+### File that will be written
+file_to_write_name <- "mtcars.xlsx"
+
+### Save data to local file
+writexl::write_xlsx(mtcars, file_to_write_name)
+
+### upload local file to directory in sharepoint
+  sp_drive$upload_file(file_to_write_name,
+                          dest = paste0("Data resources/", 
+                                        file_to_write_name))
+
+### delete local file
+unlink(file_to_write_name)
+
+
+```
+
+
+
+ 
