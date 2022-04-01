@@ -17,9 +17,9 @@ Databases are obviously the standard for remote data storage, though they're a w
 
 ## Connecting to a SQL database
 
-This can sometimes be the most frustrating part of the whole process. The driver might need to be installed on your machine or server. The R function `odbcListDrivers()` will list any drivers available on your machine. The driver listed in the code chunk below is free, works with Microsoft SQL server, and I personally have used it on Mac and linux. It's available at [Microsoft](https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-ver15), but appropriate driver depends on the type and version of sql server and your OS.
+This can sometimes be the most frustrating part of the whole process. The driver might need to be installed on your machine or server. The R function `odbcListDrivers()` will list any drivers available on your machine, but you might need to install one that's compatible with your database. The driver listed in the code chunk below is free, works with Microsoft SQL server, and I personally have used it on Mac and linux. It's available at [Microsoft](https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-ver15), but the appropriate driver depends on the type and version of sql server and your OS.
 
-The server info is best saved as an environmental variable but it can come in the form of an IP address or a url-like string. You'll need a user ID and password as well.
+The server info is best saved as an environmental variable but it can come in the form of an IP address or a url-like string. You'll need a user ID and password as well. Depending on where and how the database is hostied, you might also need to be an the network.
 
 ```{r}
 # libraries
@@ -39,7 +39,7 @@ conn <- dbConnect( odbc::odbc(),
 
 ### Reading Data from a SQL database
 
-```{r eval=FALSE}
+```{r}
 
 
 ### writing a query using standard sql, 

@@ -67,7 +67,7 @@ tm_shape(hood_shapes) +
 
 ### City's geolocator
 
-Use the City's API endpoint to get GPS points of City Hall and map it. FYI, the API only works with Baltimore addresses and it must be the street address and street only, no city, state, or zip.
+Use the City's API endpoint to get GPS points of City Hall and map it. FYI, the API only works with Baltimore addresses and it must be the street address and street only; no city, state, or zip.
 
 ```{r}
 

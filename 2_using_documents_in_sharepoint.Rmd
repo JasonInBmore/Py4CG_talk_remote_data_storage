@@ -10,9 +10,9 @@ knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
 
 ## Intro
 
-Reading and writing files to SharePoint offer a few advantages over local files and even network drives. Using SharePoint documents for data storage also come with more complicated functions, workflow and setup. First, interacting with SharePoint requires the Graph API. Setting up the graph api requires registration with BCIT. An overview of the registration and examples using R can be found [in this repo](https://github.com/city-of-baltimore/graph-api-example/tree/main/R/microsoft365r).
+Reading and writing files to SharePoint offer a few advantages over local files and even network drives. Using SharePoint documents for data storage also comes with more complicated functions, workflow, and setup. First, interacting with SharePoint requires the Graph API. Setting up the graph api requires registration with BCIT. An overview of the registration and examples using R can be found [in this repo](https://github.com/city-of-baltimore/graph-api-example/tree/main/R/microsoft365r).
 
-The following examples uses a a graph API app setup using the `client_credentials flow`, which I would generally recommend. 
+The following examples uses a a graph API app setup using the `client_credentials` flow, which I would generally recommend. 
 
 
 ## Pros and Cons
@@ -59,7 +59,7 @@ conn <- AzureGraph::create_graph_login(tenant = "bmore",
 
 ### Reading files saved in SharePoint documents
 
-The following code would work better in a function but is presented line-by-line for the example. In the example, the file is temporarily downloaded from sharepoint, then read into memory before being deleted. It uses the connection established above.
+In the example, the file is temporarily downloaded from sharepoint, then read into memory before being deleted. It uses the connection established above. 
 
 ```{r}
 ### File that will be read
@@ -70,6 +70,7 @@ whole_file_path <- paste0("Data resources/dashboard_extra_data/",
                      file_name)
 
 ## method to get to sharepoint document functions
+### this example uses the MORP SP site, change that to your own
 sp_drive <- conn$get_sharepoint_site(site_url = "https://bmore.sharepoint.com/sites/MORP")$get_drive()
   
   

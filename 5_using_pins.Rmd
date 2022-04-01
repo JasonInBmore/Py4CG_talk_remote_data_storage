@@ -29,8 +29,7 @@ knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
 
 + can't edit individual records, only rewrite whole objects
 + no audit log or rollback capabilities
-+ Feel like a database, but is much slower
-+ if it's setup on a City azure data blob, you need to be on the network
++ if it's setup on a City azure data blob, you'll need to be on the network
 
 
 

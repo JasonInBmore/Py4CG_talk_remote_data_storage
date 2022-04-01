@@ -11,12 +11,12 @@ knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
 
 When SharePoint lists are used with the Microsoft Graph API (tips on R integration [here](https://github.com/city-of-baltimore/graph-api-example/tree/main/R/microsoft365r)), they begin to feel like a hybrid between SQL and excel. There's a nice UI in SharePoint that looks remotely like excel, but through the API, one can also write queries that select and filter lists. Unlike excel, individual records (called "items" in sharepointland) can be updated. Before experimenting with the API, it requires registration with BCIT. An overview of the registration and examples using R can be found [in this repo](https://github.com/city-of-baltimore/graph-api-example/tree/main/R/microsoft365r]).
 
-The following examples uses a a graph API app setup using the `client_credentials flow`, which I would generally recommend. 
+The following examples uses a a graph API app setup using the `client_credentials` flow, which I would generally recommend. 
 
 A couple hints for dealing with lists:
-+ check the times as you read and write between a list; there's sometimes unexpected timezone conversions
++ check the times as you read and write between a list; there are sometimes unexpected timezone conversions
 + Sometimes if you change a column's name in the UI, the API will still use the original name. Deleting and recreating a column with a new name is better than renaming a column.
-+ the data type in R needs to be compatible to the fields in the list
++ the data type in R needs to be compatible to the fields in the SP list
 + Datetime is written to a list as `%Y-%m-%dT%H:%M:%SZ`. See example below
 
 
@@ -39,6 +39,7 @@ A couple hints for dealing with lists:
 + Lists are harder to edit in the sharePoint UI
 + Process to get registered with Graph API
 + Feel like a database, but is much slower
++ Functionality reported to decline with many records
 + Have to manage secrets
 + Additional libraries and functions are required to learn
 
@@ -86,7 +87,7 @@ whole_list_df <- list_connect$list_items()
 head(whole_list_df)
 
 ## Read limited records and fields
-## this returns onnly 6 columns and records that have field_1 == 6 and field_3 == 110
+## this returns only 6 columns and records that have field_1 == 6 and field_3 == 110
 limited_list_df <- 
   list_connect$list_items(filter = "fields/field_1 eq 6 and fields/field_3 eq 110",
                               select="field_1, field_2, field_3 , measurement, data_date, data_duration_type")
