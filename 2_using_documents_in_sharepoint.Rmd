@@ -22,7 +22,7 @@ The following examples uses a a graph API app setup using the `client_credential
 + Data is securely saved in sharepoint where others can access, including non-data people
 + You can see who edited files in sharepoint
 + You can rollback to a previous version of a file if something happens
-+ The graph api credentials can be used widely thus data can be read by shiny apps and more.
++ The graph api credentials can be used widely thus data can be read by shiny apps and other things.
 + Don't need to be on city network
 
 ### Cons

@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
 
 ## Intro
 
-In the Mayor's Office office, we call it the "shared drive" but I think it's more commonly called a "Network Drive". These are folders that can be setup and shared within an office or agency. They aren't on an individually computer (they're on a server) but they look like a native folder after they're [mapped](https://support.microsoft.com/en-us/windows/map-a-network-drive-in-windows-29ce55d1-34e3-a7e2-4801-131475f9557d).
+In the Mayor's Office of Recovery Programs, we call it the "shared drive" but I think it's more commonly called a "Network Drive". These are folders that can be setup and shared within an office or agency. They aren't on an individual's computer (they're on a server) but they look like a native folder after they're [mapped](https://support.microsoft.com/en-us/windows/map-a-network-drive-in-windows-29ce55d1-34e3-a7e2-4801-131475f9557d).
 
 These are a few examples using a Windows computer that's on the City's network. The examples read and write straight to the network drive; no files are saved locally. The examples use excel files but this process will work with any file.
 

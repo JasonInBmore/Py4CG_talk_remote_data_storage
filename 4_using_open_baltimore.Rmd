@@ -71,6 +71,8 @@ Use the City's API endpoint to get GPS points of City Hall and map it. FYI, the 
 
 ```{r}
 
+### example address to geocode
+
 addr <- "200 Holliday Street"
 http_ready_address <- gsub(" ", "+", addr)
 
@@ -91,7 +93,10 @@ http_ready_address <- gsub(" ", "+", addr)
      sf::st_as_sf(., 
            coords = c("location.x", "location.y"), 
            crs = 3857) %>% 
-  sf::st_transform(., 4326)
+  sf::st_transform(., 4326) ### convert crs system
+ 
+
+ ### plot map with the location 
  
 tm_shape(hood_shapes) +
   tm_borders(alpha = 0.5, col = "blue") +
