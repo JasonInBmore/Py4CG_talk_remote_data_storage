@@ -42,14 +42,14 @@ library(tmap)
 
 
 
-### Bmore neighborhood boundaries are here: https://data.baltimorecity.gov/datasets/baltimore::neighborhoods
+### Bmore neighborhood boundaries are here: https://data.baltimorecity.gov/datasets/neighborhood-1/explore
 ###
-### and you'll see that the ID for beighborhoods is f63445d9528349febb81f0b89cd8be5b_0
+### for the API info, click "I want to use this"
+### note: The paths have recently changed (Jan 2023) for many of the layers/datasets on open Baltimore 
+### so if you get an error, check to see if the shape file url is correct in open baltimore.
 
-shape_id <- "f63445d9528349febb81f0b89cd8be5b_0" # ID for neighborhoods
 
-file_url <- paste0("https://opendata.arcgis.com/datasets/", 
-                   shape_id, ".geojson")
+file_url <- "https://services1.arcgis.com/UWYHeuuJISiGmgXx/ArcGIS/rest/services/neighborhood_2010/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson"
 
 
 ### read file straight from Open Baltimore
